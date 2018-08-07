@@ -7,7 +7,11 @@ class DripServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->singleton('Drip', function($app) {
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/drip.php', 'drip'
+        );
+
+        $this->app->singleton('Drip', function() {
             return new DripPhp();
         });
     }
@@ -18,15 +22,10 @@ class DripServiceProvider extends ServiceProvider
             __DIR__ . '/config/drip.php' => config_path('drip.php'),
         ]);
 
-        $this->mergeConfigFrom(
-            __DIR__ . '/config/drip.php', 'drip'
-        );
     }
 
     public function provides()
     {
-        return [
-            'Drip',
-        ];
+        return ['Drip'];
     }
 }

@@ -16,7 +16,7 @@ class DripPhp extends \Drip\Client implements DripInterface
 {
 
     /** @var string */
-    private $account_id = '';
+    protected $account_id = '';
 
     /**
      * DripPhp constructor.
@@ -189,6 +189,12 @@ class DripPhp extends \Drip\Client implements DripInterface
         return $this->make_request($url, $params, $req_method);
     }
 
+    /**
+     * @return string
+     */
+    public function getAccountID(){
+        return $this->account_id;
+    }
 
 
 }
