@@ -21,5 +21,6 @@ interface DripInterface
     public function tagSubscriber($params);
     public function untagSubscriber($params);
     public function recordEvent($params);
-    public function makeRequest($url, $params = array(), $req_method = self::GET);
+    public function createOrUpdateOrder($params);
+    public function makeRequest($url, $params, $req_method);
 }
