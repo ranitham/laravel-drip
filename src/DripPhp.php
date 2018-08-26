@@ -82,7 +82,7 @@ class DripPhp implements DripInterface
      */
     public function createOrUpdateOrder($params)
     {
-        if (empty($params['amount'])) {
+        if (!isset($params['amount'])) {
             throw new InvalidArgumentException("amount was not specified");
         }
 
@@ -104,7 +104,7 @@ class DripPhp implements DripInterface
      */
     public function createOrUpdateRefund($params)
     {
-        if (empty($params['amount'])) {
+        if (!isset($params['amount'])) {
             throw new InvalidArgumentException("amount was not specified");
         }
 
