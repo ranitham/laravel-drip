@@ -29,7 +29,7 @@ class BaseDripClient extends Client
      */
     public function make_request($url, $params = array(), $req_method = self::GET)
     {
-        return $this->make_request($url, $params, $req_method);
+        return parent::make_request($url, $params, $req_method);
     }
 }
 
