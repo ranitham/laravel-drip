@@ -23,7 +23,6 @@ class BaseDripClient extends Client
      * @param string $url
      * @param array $params
      * @param string $req_method
-     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws \Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -165,7 +164,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
-     * @param $tries int
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -177,7 +176,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
-     * @param $tries int
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -188,6 +187,7 @@ class DripPhp implements DripInterface
     }
 
     /**
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -199,6 +199,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -209,6 +210,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -220,6 +222,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -231,6 +234,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -242,6 +246,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -253,6 +258,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -264,6 +270,7 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
