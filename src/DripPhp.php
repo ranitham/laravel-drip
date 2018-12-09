@@ -12,6 +12,7 @@ use Drip\Client;
 use Drip\Exception\InvalidAccountIdException;
 use Drip\Exception\InvalidApiTokenException;
 use \Drip\Exception\InvalidArgumentException;
+use Drip\SuccessResponse;
 use wouterNL\Drip\Interfaces\DripInterface;
 
 
@@ -22,6 +23,7 @@ class BaseDripClient extends Client
      * @param string $url
      * @param array $params
      * @param string $req_method
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws \Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -41,6 +43,44 @@ class DripPhp implements DripInterface
 
     /** @var BaseDripClient */
     private $dripClient;
+
+
+    public function __call($name, $arguments)
+    {
+        // Check if the method exists in the Client
+        if (method_exists($this->dripClient, $name) && count($arguments) >= 1) {
+            $tries = array_pop($arguments);
+
+            do {
+                switch (count($arguments)) {
+                    case 0:
+                        $res = $this->dripClient->$name();
+                        break;
+                    case 1:
+                        $res = $this->dripClient->$name($arguments[0]);
+                        break;
+                    case 2:
+                        $res = $this->dripClient->$name($arguments[0], $arguments[1]);
+                        break;
+                    case 3:
+                        $res = $this->dripClient->$name($arguments[0], $arguments[1], $arguments[2]);
+                }
+
+                if ($res instanceof SuccessResponse) {
+                    return $res;
+                }
+                $tries--;
+
+            } while ($tries > 0);
+
+            return $res;
+
+        } else {
+            throw new \InvalidArgumentException("No such method: $name");
+        }
+
+    }
+
 
     /**
      * DripPhp constructor.
@@ -75,12 +115,13 @@ class DripPhp implements DripInterface
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      *
      */
-    public function createOrUpdateOrder($params)
+    public function createOrUpdateOrder($params, $tries = 1)
     {
         if (!isset($params['amount'])) {
             throw new InvalidArgumentException("amount was not specified");
@@ -92,17 +133,18 @@ class DripPhp implements DripInterface
 
         $req_params = array('orders' => array($params));
 
-        return $this->dripClient->make_request("$this->account_id/orders", $req_params, Client::POST);
+        return $this->make_request("$this->account_id/orders", $req_params, Client::POST, $tries);
 
     }
 
     /**
      * @param $params
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function createOrUpdateRefund($params)
+    public function createOrUpdateRefund($params, $tries = 1)
     {
         if (!isset($params['amount'])) {
             throw new InvalidArgumentException("amount was not specified");
@@ -118,7 +160,51 @@ class DripPhp implements DripInterface
 
         $req_params = array('refunds' => array($params));
 
-        return $this->dripClient->make_request("$this->account_id/refunds", $req_params, Client::POST);
+        return $this->make_request("$this->account_id/refunds", $req_params, Client::POST, $tries);
+    }
+
+    /**
+     * @param $params
+     * @param $tries int
+     * @return \Drip\ResponseInterface
+     * @throws InvalidArgumentException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getCampaigns($params, $tries = 1)
+    {
+        return $this->get_campaigns($params, $tries);
+    }
+
+    /**
+     * @param $params
+     * @param $tries int
+     * @return \Drip\ResponseInterface
+     * @throws InvalidArgumentException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function fetchCampaign($params, $tries = 1)
+    {
+        return $this->fetch_campaign($params, $tries);
+    }
+
+    /**
+     * @return \Drip\ResponseInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getAccounts($tries = 1)
+    {
+        return $this->get_accounts($tries);
+    }
+
+
+    /**
+     * @param $params
+     * @return \Drip\ResponseInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createOrUpdateSubscriber($params, $tries = 1)
+    {
+        return $this->create_or_update_subscriber($params, $tries);
     }
 
     /**
@@ -127,9 +213,9 @@ class DripPhp implements DripInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function getCampaigns($params)
+    public function fetchSubscriber($params, $tries = 1)
     {
-        return $this->dripClient->get_campaigns($params);
+        return $this->fetch_subscriber($params, $tries);
     }
 
     /**
@@ -138,29 +224,9 @@ class DripPhp implements DripInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function fetchCampaign($params)
+    public function subscribeSubscriber($params, $tries = 1)
     {
-        return $this->dripClient->fetch_campaign($params);
-    }
-
-    /**
-     * @return \Drip\ResponseInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function getAccounts()
-    {
-        return $this->dripClient->get_accounts();
-    }
-
-
-    /**
-     * @param $params
-     * @return \Drip\ResponseInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function createOrUpdateSubscriber($params)
-    {
-        return $this->dripClient->create_or_update_subscriber($params);
+        return $this->subscribe_subscriber($params, $tries);
     }
 
     /**
@@ -169,9 +235,9 @@ class DripPhp implements DripInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function fetchSubscriber($params)
+    public function unsubscribeSubscriber($params, $tries = 1)
     {
-        return $this->dripClient->fetch_subscriber($params);
+        return $this->unsubscribe_subscriber($params, $tries);
     }
 
     /**
@@ -180,9 +246,9 @@ class DripPhp implements DripInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function subscribeSubscriber($params)
+    public function tagSubscriber($params, $tries = 1)
     {
-        return $this->dripClient->subscribe_subscriber($params);
+        return $this->tag_subscriber($params, $tries);
     }
 
     /**
@@ -191,9 +257,9 @@ class DripPhp implements DripInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function unsubscribeSubscriber($params)
+    public function untagSubscriber($params, $tries = 1)
     {
-        return $this->dripClient->unsubscribe_subscriber($params);
+        return $this->untag_subscriber($params, $tries);
     }
 
     /**
@@ -202,45 +268,24 @@ class DripPhp implements DripInterface
      * @throws InvalidArgumentException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function tagSubscriber($params)
+    public function recordEvent($params, $tries = 1)
     {
-        return $this->dripClient->tag_subscriber($params);
-    }
-
-    /**
-     * @param $params
-     * @return \Drip\ResponseInterface
-     * @throws InvalidArgumentException
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function untagSubscriber($params)
-    {
-        return $this->dripClient->untag_subscriber($params);
-    }
-
-    /**
-     * @param $params
-     * @return \Drip\ResponseInterface
-     * @throws InvalidArgumentException
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function recordEvent($params)
-    {
-        return $this->dripClient->record_event($params);
+        return $this->record_event($params, $tries);
     }
 
     /**
      * @param $url
      * @param array $params
      * @param string $req_method
+     * @param int $tries
      * @return \Drip\ResponseInterface
      * @throws \Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws InvalidArgumentException
      */
-    public function makeRequest($url, $params = array(), $req_method = Client::GET)
+    public function makeRequest($url, $params = array(), $req_method = Client::GET, $tries = 1)
     {
-        return $this->dripClient->make_request($url, $params, $req_method);
+        return $this->dripClient->make_request($url, $params, $req_method, $tries);
     }
 
     /**
